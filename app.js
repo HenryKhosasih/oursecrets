@@ -10,7 +10,10 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const findOrCreate = require("mongoose-find-or-create");
 
 const app = express();
-let port = 3000;
+let port = process.env.PORT;
+if (port == "" || port == null) {
+	port = 3000;
+}
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
