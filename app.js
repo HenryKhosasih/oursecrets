@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
 	username: String,
 	password: String,
 	googleId: String,
+	secrets: [String],
 });
 
 // hashing and salting in mongodb
@@ -100,8 +101,18 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/secrets", function (req, res) {
+	User.find({ secrets: { $ne: null } }, function (err, foundUsers) {
+		if (err) {
+			console.log(err);
+		} else {
+			res.render("secrets", { usersWithSecrets: foundUsers });
+		}
+	});
+});
+
+app.get("/submit", function (req, res) {
 	if (req.isAuthenticated()) {
-		res.render("secrets");
+		res.render("submit");
 	} else {
 		res.redirect("/login");
 	}
@@ -148,6 +159,25 @@ app.post("/login", function (req, res) {
 			});
 		}
 	});
+});
+
+app.post("/submit", function (req, res) {
+	const submittedSecret = req.body.secret;
+	User.updateOne(
+		{ _id: req.user.id },
+		{ $push: { secrets: submittedSecret } },
+		function (err) {
+			if (err) {
+				console.log(err);
+			} else {
+				res.redirect("/secrets");
+			}
+		}
+	);
+});
+
+app.use((req, res, next) => {
+	res.status(404).render("notfound");
 });
 
 app.listen(port, function () {
