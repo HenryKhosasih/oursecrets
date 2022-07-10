@@ -31,7 +31,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/userDB");
+mongoose.connect(
+	`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ff4bb.mongodb.net/userDB?retryWrites=true&w=majority`
+);
 
 const userSchema = new mongoose.Schema({
 	username: String,
@@ -68,7 +70,6 @@ passport.use(
 			userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
 		},
 		function (accessToken, refreshToken, profile, cb) {
-			console.log(profile);
 			User.findOrCreate({ googleId: profile.id }, function (err, user) {
 				return cb(err, user);
 			});
